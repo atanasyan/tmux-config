@@ -1,0 +1,29 @@
+#!/bin/bash
+
+if [ $HOSTNAME != "debian" ] ; then
+  echo "Run `basename $0` on the debian host only"
+  exit 1
+fi
+
+# TMUX options
+TO="-2 -u"
+
+# Get number of running tmux sessions
+tmux_sessions=`tmux ls 2> /dev/null | wc -l`
+
+if [ "$#" == "0" ] ; then
+  if [ "$tmux_sessions" == "0" ] ; then
+    # Start new standard session
+    tmux $TO source $HOME/.tmux/std.tmux
+    tmux $TO attach-session -t mips
+  elif [ "$tmux_sessions" == "1" ] ; then
+    # Attach to the only running session
+    tmux $TO attach-session
+  else
+    echo "Running sessions (tmux attach-session -t #):"
+    echo "--------------------------------------------"
+    tmux $TO ls
+  fi
+else
+  tmux $TO $@
+fi
