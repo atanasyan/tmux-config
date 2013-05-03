@@ -1,7 +1,8 @@
 #!/bin/bash
 
-if [ $HOSTNAME != "debian" ] ; then
-  echo "Run `basename $0` on the debian host only"
+# If we run under tmux/screen do nothing.
+if [[ $TERM == screen* ]]; then
+  echo "Do not run `basename $0` under tmux/screen"
   exit 1
 fi
 
@@ -14,8 +15,7 @@ tmux_sessions=`tmux ls 2> /dev/null | wc -l`
 if [ "$#" == "0" ] ; then
   if [ "$tmux_sessions" == "0" ] ; then
     # Start new standard session
-    tmux $TO source $HOME/.tmux/std.tmux
-    tmux $TO attach-session -t mips
+    tmux $TO start \; source $HOME/.tmux/std.tmux \; attach-session -t mips
   elif [ "$tmux_sessions" == "1" ] ; then
     # Attach to the only running session
     tmux $TO attach-session
