@@ -16,13 +16,29 @@ def get_green(str):
 
 # return (total, used, free)
 def get_memory_usage():
+  mem_total       = 0
+  mem_free        = 0
+  mem_buffers     = 0
+  mem_cached      = 0
+  mem_swap_cached = 0
+
   p = re.compile('\d+')
-  proc = subprocess.Popen(['free'],stdout=subprocess.PIPE)
-  for line in iter(proc.stdout.readline,''):
-    if line.startswith('Mem:'):
-      vals = p.findall(line)
-      return (float(vals[0]), float(vals[1]), float(vals[2]))
-  return ()
+  proc = open('/proc/meminfo','r')
+  for line in iter(proc.readline,''):
+    if line.startswith('MemTotal:'):
+      mem_total = float(p.findall(line)[0])
+    elif line.startswith('MemFree:'):
+      mem_free = float(p.findall(line)[0])
+    elif line.startswith('Buffers:'):
+      mem_buffrs = float(p.findall(line)[0])
+    elif line.startswith('Cached:'):
+      mem_cached = float(p.findall(line)[0])
+    elif line.startswith('SwapCached:'):
+      mem_swap_cached = float(p.findall(line)[0])
+
+  mem_free = mem_free + mem_buffers + mem_cached + mem_swap_cached
+  mem_used = mem_total - mem_free
+  return (mem_total, mem_used, mem_free)
 
 # return (user, nice, system, idle)
 def get_cpu_usage():
